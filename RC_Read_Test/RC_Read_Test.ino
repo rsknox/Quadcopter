@@ -1,4 +1,4 @@
-// Test routine to read RC reciever channels
+// Test routine to read RC reciever channels and display pwm values on serial display
 
 int ch1;
 int ch2;
