@@ -26,6 +26,12 @@ float Total_angle_x, Total_angle_y;
 
 
 void setup() {   
+  
+  Serial.begin(115200);
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+  Serial.println(__TIME__);
+  
   Wire.begin();                           //begin the wire comunication  
   Wire.beginTransmission(0x68);           //begin, Send the slave adress (in this case 68)              
   Wire.write(0x6B);                       //make the reset (place a 0 into the 6B register)

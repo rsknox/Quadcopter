@@ -8,6 +8,12 @@ int ch5;
 int ch6;
 
 void setup() {
+  
+  Serial.begin(115200);
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+  Serial.println(__TIME__);
+  
   pinMode (2, INPUT); //Thro
   pinMode (4, INPUT); //Elev
   pinMode (5, INPUT); //Aile
@@ -15,7 +21,7 @@ void setup() {
   pinMode (7, INPUT); //Aux1
   pinMode (12, INPUT);//Gear
 
-  Serial.begin(9600);
+  //Serial.begin(9600);
 }
 
 void loop() {
