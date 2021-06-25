@@ -9,7 +9,7 @@ int ch6;
 
 void setup() {
   
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println(__FILE__);
   Serial.println(__DATE__);
   Serial.println(__TIME__);
@@ -32,23 +32,29 @@ void loop() {
   ch5 = pulseIn(7, HIGH, 25000);
   ch6 = pulseIn(12, HIGH, 25000);
 
-  Serial.print("Thro: ");
+  Serial.print("Thro:");
   Serial.print(ch1);
+  Serial.print(" ");
   
-  Serial.print("Elev: ");
+  Serial.print("Elev:");
   Serial.print(ch2);
+  Serial.print(" ");
 
-  Serial.print("Aile: ");
+  Serial.print("Aile:");
   Serial.print(ch3);
+  Serial.print(" ");
 
-  Serial.print("Rudd: ");
+  Serial.print("Rudd:");
   Serial.print(ch4);
+  Serial.print(" ");
 
-  Serial.print("Aux1: ");
+  Serial.print("Aux1:");
   Serial.print(ch5);
+  Serial.print(" ");
 
-  Serial.print("Gear: ");
+  Serial.print("Gear:");
   Serial.print(ch6);
+  Serial.print(" ");
 
   Serial.println();
   delay(100);
