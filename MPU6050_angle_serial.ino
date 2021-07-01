@@ -11,7 +11,7 @@
 #include <Wire.h>
 
 //Gyro Variables
-float elapsedTime, tim, timePrev;        //Variables for time control
+float elapsedTime, time, timePrev;        //Variables for time control
 int gyro_error=0;                         //We use this variable to only calculate once the gyro data error
 float Gyr_rawX, Gyr_rawY, Gyr_rawZ;     //Here we store the raw data read 
 float Gyro_angle_x, Gyro_angle_y;         //Here we store the angle value obtained with Gyro data
@@ -52,7 +52,7 @@ void setup() {
   Wire.endTransmission(true); 
 
   Serial.begin(9600);                     //Remember to set this same baud rate to the serial monitor  
-  tim = millis();                        //Start counting time in milliseconds
+  time = millis();                        //Start counting time in milliseconds
 
 
 /*Here we calculate the acc data error before we start the loop
@@ -120,9 +120,9 @@ void setup() {
 
 
 void loop() {
-  timePrev = tim;                        // the previous time is stored before the actual time read
-  tim = millis();                        // actual time read
-  elapsedTime = (tim - timePrev) / 1000; //divide by 1000 in order to obtain seconds
+  timePrev = time;                        // the previous time is stored before the actual time read
+  time = millis();                        // actual time read
+  elapsedTime = (time - timePrev) / 1000; //divide by 1000 in order to obtain seconds
 
   //////////////////////////////////////Gyro read/////////////////////////////////////
 
