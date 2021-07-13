@@ -56,7 +56,11 @@ double gyro_axis_cal[4];
 
 //Setup routine
 void setup(){
-  Serial.begin(57600);                                                                  //Start the serial port.
+  //Serial.begin(57600);                                                                  //Start the serial port.
+  Serial.begin(9600);
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+  Serial.println(__TIME__);
   Wire.begin();                                                                         //Start the wire library as master
   TWBR = 12;                                                                            //Set the I2C clock speed to 400kHz.
 
@@ -75,7 +79,12 @@ void setup(){
   gyro_address = eeprom_data[32];                                                       //Store the gyro address in the variable.
 
   set_gyro_registers();                                                                 //Set the specific gyro registers.
-
+  int a33 = eeprom_data[33];
+  Serial.println("gyro_address: ", gyro_address.as<int>());
+//  Serial.println("data[33]: ", a33);
+//  Serial.println("data[34]: ", eeprom_data[34]);
+//  Serial.println("data[35]: ", eeprom_data[35]);
+  
   //Check the EEPROM signature to make sure that the setup program is executed.
   while(eeprom_data[33] != 'J' || eeprom_data[34] != 'M' || eeprom_data[35] != 'B'){
     delay(500);                                                                         //Wait for 500ms.
@@ -518,10 +527,3 @@ void gyro_signalen(){
   acc_z = acc_axis[eeprom_data[30] & 0b00000011];                //Set acc_z to the correct axis that was stored in the EEPROM.
   if(eeprom_data[30] & 0b10000000)acc_z *= -1;                   //Invert acc_z if the MSB of EEPROM bit 30 is set.
 }
-
-
-
-
-
-
-

@@ -44,7 +44,11 @@ void setup(){
   PCMSK0 |= (1 << PCINT2);  // set PCINT2 (digital input 10)to trigger an interrupt on state change
   PCMSK0 |= (1 << PCINT3);  // set PCINT3 (digital input 11)to trigger an interrupt on state change
   Wire.begin();             //Start the I2C as master
-  Serial.begin(57600);      //Start the serial connetion @ 57600bps
+  //Serial.begin(57600);      //Start the serial connetion @ 57600bps
+  Serial.begin(9600);
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+  Serial.println(__TIME__);
   delay(250);               //Give the gyro time to start 
 }
 //Main program
