@@ -80,7 +80,7 @@ void setup(){
 
   set_gyro_registers();                                                                 //Set the specific gyro registers.
   int a33 = eeprom_data[33];
-  Serial.println("gyro_address: ", gyro_address.as<int>());
+  Serial.println("gyro_address: ", gyro_address);
 //  Serial.println("data[33]: ", a33);
 //  Serial.println("data[34]: ", eeprom_data[34]);
 //  Serial.println("data[35]: ", eeprom_data[35]);
