@@ -185,22 +185,22 @@ void loop() {
  
  /*Uncoment the rest of the serial prines
  * I only print the Y angle value for this test */
-// Serial.print("Xº: ");
-// Serial.print(Total_angle_x);
-// Serial.print("   |   ");
-// Serial.print("Yº: ");
-// Serial.print(Total_angle_y);
-// Serial.println(" ");
-
- Serial.print("Acc_rawX: ");
- Serial.print(Acc_rawX);
+ Serial.print("Xº: ");
+ Serial.print(Total_angle_x);
  Serial.print("   |   ");
- Serial.print("Acc_rawY: ");
- Serial.print(Acc_rawY);
- Serial.print("   |   ");
- Serial.print("Acc_rawZ: ");
- Serial.print(Acc_rawZ);
+ Serial.print("Yº: ");
+ Serial.print(Total_angle_y);
  Serial.println(" ");
+
+// Serial.print("Acc_rawX: ");
+// Serial.print(Acc_rawX);
+// Serial.print("   |   ");
+// Serial.print("Acc_rawY: ");
+// Serial.print(Acc_rawY);
+// Serial.print("   |   ");
+// Serial.print("Acc_rawZ: ");
+// Serial.print(Acc_rawZ);
+// Serial.println(" ");
  delay(200);
 
 }

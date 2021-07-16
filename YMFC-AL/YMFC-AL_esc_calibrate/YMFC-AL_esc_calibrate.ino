@@ -54,9 +54,16 @@ float angle_roll_acc, angle_pitch_acc, angle_pitch, angle_roll;
 int cal_int;
 double gyro_axis_cal[4];
 
+int low_pwm = 0;
+
+
 //Setup routine
 void setup(){
-  Serial.begin(57600);                                                                  //Start the serial port.
+  //Serial.begin(57600);                                                                  //Start the serial port.
+  Serial.begin(9600);
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+  Serial.println(__TIME__);
   Wire.begin();                                                                         //Start the wire library as master
   TWBR = 12;                                                                            //Set the I2C clock speed to 400kHz.
 
@@ -71,11 +78,20 @@ void setup(){
   PCMSK0 |= (1 << PCINT3);                                                              // set PCINT3 (digital input 11)to trigger an interrupt on state change.
 
   for(data = 0; data <= 35; data++)eeprom_data[data] = EEPROM.read(data);               //Read EEPROM for faster data access
+  
 
   gyro_address = eeprom_data[32];                                                       //Store the gyro address in the variable.
 
   set_gyro_registers();                                                                 //Set the specific gyro registers.
-
+//  int a33 = 0;
+//  a33 = EEPROM.read(1);
+  //Serial.println("gyro_address: ", gyro_address);
+//  Serial.print("data[33]: ");
+//  Serial.print(a33);
+//  Serial.println();
+//  Serial.println("data[34]: ", eeprom_data[34]);
+//  Serial.println("data[35]: ", eeprom_data[35]);
+  
   //Check the EEPROM signature to make sure that the setup program is executed.
   while(eeprom_data[33] != 'J' || eeprom_data[34] != 'M' || eeprom_data[35] != 'B'){
     delay(500);                                                                         //Wait for 500ms.
@@ -116,10 +132,17 @@ void loop(){
     //We don't want the ESC's to beep and have to send a 1000us pulse to the ESC's.
     for(vibration_counter = 0; vibration_counter < 625; vibration_counter++){           //Do this loop 625 times
       delay(3);                                                                         //Wait 3000us.
-      esc_1 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
-      esc_2 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
-      esc_3 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
-      esc_4 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+//      esc_1 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+//      esc_2 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+//      esc_3 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+//      esc_4 = 1000;
+        esc_1 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
+        esc_2 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
+        esc_3 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
+        esc_4 = low_pwm; 
+      
+      
+      //Set the pulse for ESC 1 to 1000us.
       esc_pulse_output();                                                               //Send the ESC control pulses.
     }
     vibration_counter = 0;                                                              //Reset the vibration_counter variable.
@@ -163,10 +186,15 @@ void loop(){
     //Stopping the motors: throttle low and yaw right.
     if(start == 2 && receiver_input_channel_3 < 1050 && receiver_input_channel_4 > 1950)start = 0;
 
-    esc_1 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
-    esc_2 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
-    esc_3 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
-    esc_4 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
+//    esc_1 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
+//    esc_2 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
+//    esc_3 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
+//    esc_4 = 1000;
+      esc_1 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
+      esc_2 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
+      esc_3 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
+      esc_4 = low_pwm;
+//Set the pulse for ESC 1 to 1000us.
     esc_pulse_output();                                                                 //Send the ESC control pulses.
   }
 
@@ -183,14 +211,17 @@ void loop(){
     if(new_function_request == false){                                                  //When the throttle was in the lowest position do this.
       receiver_input_channel_3 = convert_receiver_channel(3);                           //Convert the actual receiver signals for throttle to the standard 1000 - 2000us.
       if(data == '1' || data == '5')esc_1 = receiver_input_channel_3;                   //If motor 1 is requested set the pulse for motor 1 equal to the throttle channel.
-      else esc_1 = 1000;                                                                //If motor 1 is not requested set the pulse for the ESC to 1000us (off).
+      //else esc_1 = 1000;                                                                //If motor 1 is not requested set the pulse for the ESC to 1000us (off).
+      else esc_1 = low_pwm;
       if(data == '2' || data == '5')esc_2 = receiver_input_channel_3;                   //If motor 2 is requested set the pulse for motor 1 equal to the throttle channel.
-      else esc_2 = 1000;                                                                //If motor 2 is not requested set the pulse for the ESC to 1000us (off).
+      //else esc_2 = 1000;                                                                //If motor 2 is not requested set the pulse for the ESC to 1000us (off).
+      else esc_2 = low_pwm;
       if(data == '3' || data == '5')esc_3 = receiver_input_channel_3;                   //If motor 3 is requested set the pulse for motor 1 equal to the throttle channel.
-      else esc_3 = 1000;                                                                //If motor 3 is not requested set the pulse for the ESC to 1000us (off).
+      //else esc_3 = 1000;                                                                //If motor 3 is not requested set the pulse for the ESC to 1000us (off).
+      else esc_3 = low_pwm;
       if(data == '4' || data == '5')esc_4 = receiver_input_channel_3;                   //If motor 4 is requested set the pulse for motor 1 equal to the throttle channel.
-      else esc_4 = 1000;                                                                //If motor 4 is not requested set the pulse for the ESC to 1000us (off).
-
+      //else esc_4 = 1000;                                                                //If motor 4 is not requested set the pulse for the ESC to 1000us (off).
+      else esc_4 = low_pwm;
       esc_pulse_output();                                                               //Send the ESC control pulses.
 
       //For balancing the propellors it's possible to use the accelerometer to measure the vibrations.
@@ -221,6 +252,7 @@ void loop(){
         }
         else{
           vibration_counter = 0;                                                        //If the vibration_counter is equal or larger than 20 do this.
+          Serial.print("Vib: ");
           Serial.println(vibration_total_result/50);                                    //Print the total accelerometer vector divided by 50 on the serial monitor.
           vibration_total_result = 0;                                                   //Reset the vibration_total_result variable.
         }
@@ -518,10 +550,3 @@ void gyro_signalen(){
   acc_z = acc_axis[eeprom_data[30] & 0b00000011];                //Set acc_z to the correct axis that was stored in the EEPROM.
   if(eeprom_data[30] & 0b10000000)acc_z *= -1;                   //Invert acc_z if the MSB of EEPROM bit 30 is set.
 }
-
-
-
-
-
-
-
