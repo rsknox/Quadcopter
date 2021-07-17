@@ -54,7 +54,7 @@ float angle_roll_acc, angle_pitch_acc, angle_pitch, angle_roll;
 int cal_int;
 double gyro_axis_cal[4];
 
-int low_pwm = 0;
+int low_pwm = 1000;
 
 
 //Setup routine
@@ -83,20 +83,6 @@ void setup(){
   gyro_address = eeprom_data[32];                                                       //Store the gyro address in the variable.
 
   set_gyro_registers();                                                                 //Set the specific gyro registers.
-<<<<<<< HEAD
-//  int a33 = 0;
-//  a33 = EEPROM.read(1);
-  //Serial.println("gyro_address: ", gyro_address);
-//  Serial.print("data[33]: ");
-//  Serial.print(a33);
-//  Serial.println();
-=======
-  int a33 = eeprom_data[33];
-  Serial.println("gyro_address: ", gyro_address);
-//  Serial.println("data[33]: ", a33);
->>>>>>> ddd7df779cf2b4457d9f3c4663cf1ad5039a1172
-//  Serial.println("data[34]: ", eeprom_data[34]);
-//  Serial.println("data[35]: ", eeprom_data[35]);
   
   //Check the EEPROM signature to make sure that the setup program is executed.
   while(eeprom_data[33] != 'J' || eeprom_data[34] != 'M' || eeprom_data[35] != 'B'){
