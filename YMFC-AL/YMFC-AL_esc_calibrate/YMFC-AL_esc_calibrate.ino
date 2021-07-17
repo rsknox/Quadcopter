@@ -54,9 +54,6 @@ float angle_roll_acc, angle_pitch_acc, angle_pitch, angle_roll;
 int cal_int;
 double gyro_axis_cal[4];
 
-int low_pwm = 1000;
-
-
 //Setup routine
 void setup(){
   //Serial.begin(57600);                                                                  //Start the serial port.
@@ -124,17 +121,11 @@ void loop(){
     //We don't want the ESC's to beep and have to send a 1000us pulse to the ESC's.
     for(vibration_counter = 0; vibration_counter < 625; vibration_counter++){           //Do this loop 625 times
       delay(3);                                                                         //Wait 3000us.
-//      esc_1 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
-//      esc_2 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
-//      esc_3 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
-//      esc_4 = 1000;
-        esc_1 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
-        esc_2 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
-        esc_3 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
-        esc_4 = low_pwm; 
-      
-      
-      //Set the pulse for ESC 1 to 1000us.
+      esc_1 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+      esc_2 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+      esc_3 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+      esc_4 = 1000;                                                                     //Set the pulse for ESC 1 to 1000us.
+
       esc_pulse_output();                                                               //Send the ESC control pulses.
     }
     vibration_counter = 0;                                                              //Reset the vibration_counter variable.
@@ -178,14 +169,11 @@ void loop(){
     //Stopping the motors: throttle low and yaw right.
     if(start == 2 && receiver_input_channel_3 < 1050 && receiver_input_channel_4 > 1950)start = 0;
 
-//    esc_1 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
-//    esc_2 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
-//    esc_3 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
-//    esc_4 = 1000;
-      esc_1 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
-      esc_2 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
-      esc_3 = low_pwm;                                                                     //Set the pulse for ESC 1 to 1000us.
-      esc_4 = low_pwm;
+    esc_1 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
+    esc_2 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
+    esc_3 = 1000;                                                                       //Set the pulse for ESC 1 to 1000us.
+    esc_4 = 1000;
+
 //Set the pulse for ESC 1 to 1000us.
     esc_pulse_output();                                                                 //Send the ESC control pulses.
   }
@@ -203,17 +191,17 @@ void loop(){
     if(new_function_request == false){                                                  //When the throttle was in the lowest position do this.
       receiver_input_channel_3 = convert_receiver_channel(3);                           //Convert the actual receiver signals for throttle to the standard 1000 - 2000us.
       if(data == '1' || data == '5')esc_1 = receiver_input_channel_3;                   //If motor 1 is requested set the pulse for motor 1 equal to the throttle channel.
-      //else esc_1 = 1000;                                                                //If motor 1 is not requested set the pulse for the ESC to 1000us (off).
-      else esc_1 = low_pwm;
+      else esc_1 = 1000;                                                                //If motor 1 is not requested set the pulse for the ESC to 1000us (off).
+
       if(data == '2' || data == '5')esc_2 = receiver_input_channel_3;                   //If motor 2 is requested set the pulse for motor 1 equal to the throttle channel.
-      //else esc_2 = 1000;                                                                //If motor 2 is not requested set the pulse for the ESC to 1000us (off).
-      else esc_2 = low_pwm;
+      else esc_2 = 1000;                                                                //If motor 2 is not requested set the pulse for the ESC to 1000us (off).
+ 
       if(data == '3' || data == '5')esc_3 = receiver_input_channel_3;                   //If motor 3 is requested set the pulse for motor 1 equal to the throttle channel.
-      //else esc_3 = 1000;                                                                //If motor 3 is not requested set the pulse for the ESC to 1000us (off).
-      else esc_3 = low_pwm;
+      else esc_3 = 1000;                                                                //If motor 3 is not requested set the pulse for the ESC to 1000us (off).
+
       if(data == '4' || data == '5')esc_4 = receiver_input_channel_3;                   //If motor 4 is requested set the pulse for motor 1 equal to the throttle channel.
-      //else esc_4 = 1000;                                                                //If motor 4 is not requested set the pulse for the ESC to 1000us (off).
-      else esc_4 = low_pwm;
+      else esc_4 = 1000;                                                                //If motor 4 is not requested set the pulse for the ESC to 1000us (off).
+ 
       esc_pulse_output();                                                               //Send the ESC control pulses.
 
       //For balancing the propellors it's possible to use the accelerometer to measure the vibrations.
@@ -394,7 +382,7 @@ void wait_for_receiver(){
 
 //This part converts the actual receiver signals to a standardized 1000 – 1500 – 2000 microsecond value.
 //The stored data in the EEPROM is used.
-int convert_receiver_channel(byte function){
+int convert_receiver_channel(byte function){                                   //the input will only ever be 1, 2, 3 or 4
   byte channel, reverse;                                                       //First we declare some local variables
   int low, center, high, actual;
   int difference;
@@ -412,13 +400,15 @@ int convert_receiver_channel(byte function){
     if(actual < low)actual = low;                                              //Limit the lowest value to the value that was detected during setup
     difference = ((long)(center - actual) * (long)500) / (center - low);       //Calculate and scale the actual value to a 1000 - 2000us value
     if(reverse == 1)return 1500 + difference;                                  //If the channel is reversed
-    else return 1500 - difference;                                             //If the channel is not reversed
+    //else return 1500 - difference;                                             //If the channel is not reversed
+    return actual;
   }
-  else if(actual > center){                                                                        //The actual receiver value is higher than the center value
+  else if(actual > center){                                                    //The actual receiver value is higher than the center value
     if(actual > high)actual = high;                                            //Limit the lowest value to the value that was detected during setup
     difference = ((long)(actual - center) * (long)500) / (high - center);      //Calculate and scale the actual value to a 1000 - 2000us value
     if(reverse == 1)return 1500 - difference;                                  //If the channel is reversed
-    else return 1500 + difference;                                             //If the channel is not reversed
+    //else return 1500 + difference;                                             //If the channel is not reversed
+    return actual;
   }
   else return 1500;
 }
