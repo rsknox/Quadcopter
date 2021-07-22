@@ -72,6 +72,11 @@ boolean gyro_angles_set;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup(){
   //Serial.begin(57600);
+  Serial.begin(9600);
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+  Serial.println(__TIME__);
+  
   //Copy the EEPROM data for fast access data.
   for(start = 0; start <= 35; start++)eeprom_data[start] = EEPROM.read(start);
   start = 0;                                                                //Set start back to zero.
@@ -103,6 +108,7 @@ void setup(){
     PORTD &= B00001111;                                                     //Set digital poort 4, 5, 6 and 7 low.
     delayMicroseconds(3000);                                                //Wait 3000us.
   }
+  //Serial.println("Start gyro cal");
 
   //Let's take multiple gyro data samples so we can determine the average gyro offset (calibration).
   for (cal_int = 0; cal_int < 2000 ; cal_int ++){                           //Take 2000 readings for calibration.
@@ -127,6 +133,7 @@ void setup(){
   PCMSK0 |= (1 << PCINT1);                                                  //Set PCINT1 (digital input 9)to trigger an interrupt on state change.
   PCMSK0 |= (1 << PCINT2);                                                  //Set PCINT2 (digital input 10)to trigger an interrupt on state change.
   PCMSK0 |= (1 << PCINT3);                                                  //Set PCINT3 (digital input 11)to trigger an interrupt on state change.
+  Serial.println("wait for receiver");
 
   //Wait until the receiver is active and the throtle is set to the lower position.
   while(receiver_input_channel_3 < 990 || receiver_input_channel_3 > 1020 || receiver_input_channel_4 < 1400){
@@ -152,16 +159,19 @@ void setup(){
   //1260 / 1023 = 1.2317.
   //The variable battery_voltage holds 1050 if the battery voltage is 10.5V.
   battery_voltage = (analogRead(0) + 65) * 1.2317;
-
+  //Serial.println("Read batt V");
+ 
   loop_timer = micros();                                                    //Set the timer for the next loop.
 
   //When everything is done, turn off the led.
   digitalWrite(12,LOW);                                                     //Turn off the warning led.
+  //Serial.println("LED off?");
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Main program loop
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop(){
+  //Serial.println("Top of Loop");
 
   //65.5 = 1 deg/sec (check the datasheet of the MPU-6050 for more information).
   gyro_roll_input = (gyro_roll_input * 0.7) + ((gyro_roll / 65.5) * 0.3);   //Gyro pid input is deg/sec.
@@ -262,14 +272,21 @@ void loop(){
   }
   
   calculate_pid();                                                            //PID inputs are known. So we can calculate the pid output.
+  //Serial.println("Calc pid");
 
   //The battery voltage is needed for compensation.
   //A complementary filter is used to reduce noise.
   //0.09853 = 0.08 * 1.2317.
   battery_voltage = battery_voltage * 0.92 + (analogRead(0) + 65) * 0.09853;
+  //Serial.println("Batt V: ");
 
   //Turn on the led if battery voltage is to low.
+  //if(battery_voltage < 1000)Serial.println("Batt < 1000");
+  //if(battery_voltage > 600)Serial.println("Batt > 600");
+  //if(battery_voltage < 1200 && battery_voltage > 600){
   if(battery_voltage < 1000 && battery_voltage > 600)digitalWrite(12, HIGH);
+    //Serial.println("Batt low??");
+  //}
 
 
   throttle = receiver_input_channel_3;                                      //We need the throttle signal as a base signal.
@@ -508,13 +525,15 @@ int convert_receiver_channel(byte function){
     if(actual < low)actual = low;                                              //Limit the lowest value to the value that was detected during setup
     difference = ((long)(center - actual) * (long)500) / (center - low);       //Calculate and scale the actual value to a 1000 - 2000us value
     if(reverse == 1)return 1500 + difference;                                  //If the channel is reversed
-    else return 1500 - difference;                                             //If the channel is not reversed
+    //else return 1500 - difference;                                             //If the channel is not reversed
+    return actual;
   }
   else if(actual > center){                                                                        //The actual receiver value is higher than the center value
     if(actual > high)actual = high;                                            //Limit the lowest value to the value that was detected during setup
     difference = ((long)(actual - center) * (long)500) / (high - center);      //Calculate and scale the actual value to a 1000 - 2000us value
     if(reverse == 1)return 1500 - difference;                                  //If the channel is reversed
-    else return 1500 + difference;                                             //If the channel is not reversed
+    //else return 1500 + difference;                                             //If the channel is not reversed
+    return actual;
   }
   else return 1500;
 }
