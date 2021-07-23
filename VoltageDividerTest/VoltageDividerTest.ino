@@ -9,11 +9,11 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   int analog_in = analogRead(A0);
-  float volt_in = analog_in * (5.0 / 1024.0);
+  float volt_in = 5.0 * (analog_in/1024.0);
  
-  Serial.write("  analog in: ");
+  Serial.print("  analog in: ");
   Serial.print(analog_in);
-  Serial.write("  volts in: ");
+  Serial.print("  volts in: ");
   Serial.println(volt_in);
   
   delay(2000);
