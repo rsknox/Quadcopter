@@ -73,6 +73,12 @@ boolean gyro_angles_set;
 void setup(){
   //Serial.begin(57600);
   //Copy the EEPROM data for fast access data.
+  
+  Serial.begin(9600);
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+  Serial.println(__TIME__);
+  
   for(start = 0; start <= 35; start++)eeprom_data[start] = EEPROM.read(start);
   start = 0;                                                                //Set start back to zero.
   gyro_address = eeprom_data[32];                                           //Store the gyro address in the variable.
@@ -85,17 +91,25 @@ void setup(){
   DDRD |= B11110000;                                                        //Configure digital poort 4, 5, 6 and 7 as output.
   DDRB |= B00110000;                                                        //Configure digital poort 12 and 13 as output.
 
+  //Serial.println("EEPROM read complete");
+
   //Use the led on the Arduino for startup indication.
   digitalWrite(12,HIGH);                                                    //Turn on the warning led.
 
   //Check the EEPROM signature to make sure that the setup program is executed.
   while(eeprom_data[33] != 'J' || eeprom_data[34] != 'M' || eeprom_data[35] != 'B')delay(10);
 
+  //Serial.println("Following 'while'");
+
   //The flight controller needs the MPU-6050 with gyro and accelerometer
   //If setup is completed without MPU-6050 stop the flight controller program  
   if(eeprom_data[31] == 2 || eeprom_data[31] == 3)delay(10);
 
+  //Serial.println("following 'if'");
+
   set_gyro_registers();                                                     //Set the specific gyro registers.
+
+  //Serial.println("following set_gypro");
 
   for (cal_int = 0; cal_int < 1250 ; cal_int ++){                           //Wait 5 seconds before continuing.
     PORTD |= B11110000;                                                     //Set digital poort 4, 5, 6 and 7 high.
@@ -105,6 +119,9 @@ void setup(){
   }
 
   //Let's take multiple gyro data samples so we can determine the average gyro offset (calibration).
+
+  //Serial.println("Start gyro calibration");
+  
   for (cal_int = 0; cal_int < 2000 ; cal_int ++){                           //Take 2000 readings for calibration.
     if(cal_int % 15 == 0)digitalWrite(12, !digitalRead(12));                //Change the led status to indicate calibration.
     gyro_signalen();                                                        //Read the gyro output.
@@ -128,6 +145,8 @@ void setup(){
   PCMSK0 |= (1 << PCINT2);                                                  //Set PCINT2 (digital input 10)to trigger an interrupt on state change.
   PCMSK0 |= (1 << PCINT3);                                                  //Set PCINT3 (digital input 11)to trigger an interrupt on state change.
 
+  //Serial.println("Start RC reciever check");
+
   //Wait until the receiver is active and the throtle is set to the lower position.
   while(receiver_input_channel_3 < 990 || receiver_input_channel_3 > 1020 || receiver_input_channel_4 < 1400){
     receiver_input_channel_3 = convert_receiver_channel(3);                 //Convert the actual receiver signals for throttle to the standard 1000 - 2000us
@@ -145,6 +164,8 @@ void setup(){
   }
   start = 0;                                                                //Set start back to 0.
 
+  Serial.print("Batt voltage check:  ");
+
   //Load the battery voltage to the battery_voltage variable.
   //65 is the voltage compensation for the diode.
   //12.6V equals ~5V @ Analog 0.
@@ -153,6 +174,8 @@ void setup(){
   //The variable battery_voltage holds 1050 if the battery voltage is 10.5V.
   battery_voltage = (analogRead(0) + 65) * 1.2317;
 
+  Serial.println(battery_voltage);
+  
   loop_timer = micros();                                                    //Set the timer for the next loop.
 
   //When everything is done, turn off the led.
@@ -210,11 +233,18 @@ void loop(){
   }
 
 
+  //Serial.println("Prior to checking motor start joystick posns");
+  
   //For starting the motors: throttle low and yaw left (step 1).
   if(receiver_input_channel_3 < 1050 && receiver_input_channel_4 < 1050)start = 1;
   //When yaw stick is back in the center position start the motors (step 2).
+
+  //Serial.println("after 'if' setting to start=1");
+  
   if(start == 1 && receiver_input_channel_3 < 1050 && receiver_input_channel_4 > 1450){
     start = 2;
+
+    //Serial.println("After 'if' setting to start=2 ****************************************");
 
     angle_pitch = angle_pitch_acc;                                          //Set the gyro pitch angle equal to the accelerometer pitch angle when the quadcopter is started.
     angle_roll = angle_roll_acc;                                            //Set the gyro roll angle equal to the accelerometer roll angle when the quadcopter is started.
@@ -260,6 +290,8 @@ void loop(){
     if(receiver_input_channel_4 > 1508)pid_yaw_setpoint = (receiver_input_channel_4 - 1508)/3.0;
     else if(receiver_input_channel_4 < 1492)pid_yaw_setpoint = (receiver_input_channel_4 - 1492)/3.0;
   }
+
+  //Serial.println("============ cal_pid");
   
   calculate_pid();                                                            //PID inputs are known. So we can calculate the pid output.
 
@@ -521,7 +553,13 @@ int convert_receiver_channel(byte function){
 
 void set_gyro_registers(){
   //Setup the MPU-6050
+
+  //Serial.println("In set_gyro_registers");
+  
   if(eeprom_data[31] == 1){
+
+    //Serial.println("IN main 'if'");
+    
     Wire.beginTransmission(gyro_address);                                      //Start communication with the address found during search.
     Wire.write(0x6B);                                                          //We want to write to the PWR_MGMT_1 register (6B hex)
     Wire.write(0x00);                                                          //Set the register bits as 00000000 to activate the gyro
@@ -542,8 +580,17 @@ void set_gyro_registers(){
     Wire.write(0x1B);                                                          //Start reading @ register 0x1B
     Wire.endTransmission();                                                    //End the transmission
     Wire.requestFrom(gyro_address, 1);                                         //Request 1 bytes from the gyro
+
+    //Serial.println("Before while");
+    
     while(Wire.available() < 1);                                               //Wait until the 6 bytes are received
+
+    //Serial.println("After while");
+    
     if(Wire.read() != 0x08){                                                   //Check if the value is 0x08
+
+      //Serial.println("In wire.read 'if'");
+      
       digitalWrite(12,HIGH);                                                   //Turn on the warning led
       while(1)delay(10);                                                       //Stay in this loop for ever
     }
